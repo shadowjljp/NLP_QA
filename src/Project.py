@@ -292,9 +292,9 @@ class Project():
         # execute query
         res = Project.es.search(index=Project.index_name, query=search_param)
         print('===================================')
-        print('res', res)
+        #print('res', res)
         print('===================================')
-        print([(hit['_source']['article_id'], hit['_score']) for hit in res['hits']['hits']])
+        #print([(hit['_source']['article_id'], hit['_score']) for hit in res['hits']['hits']])
         result = [hit['_source']['article_id'] for hit in res['hits']['hits']]
         return result
         # [(222, 28.443619), (360, 20.216982), (273, 19.12777), (177, 17.02761), (287, 15.546484), (288, 14.089401), (179, 14.036338), (56, 13.599551), (109, 12.828577), (282, 12.752726)]
@@ -361,12 +361,17 @@ class Project():
                     },
                     "should": [
                         {"match": {
-                            "text": self.query + self.synonyms + self.hypernyms + self.query_lemma
+                            "text": self.query + self.synonyms + self.hypernyms
                         }
                         },
                         {
                             "match": {
                                 "pos": self.query_pos
+                            }
+                        },
+                        {
+                            "match": {
+                                "lemma": self.query_lemma
                             }
                         },
 
@@ -384,7 +389,7 @@ class Project():
                     },
                     "should": [
                         {"match": {
-                            "text": self.query + self.synonyms + self.hypernyms + self.query_lemma
+                            "text": self.query + self.synonyms + self.hypernyms
                         }
                         },
                         {
@@ -397,13 +402,18 @@ class Project():
                                 "ne": self.query_ne
                             }
                         },
+                        {
+                            "match": {
+                                "lemma": self.query_lemma
+                            }
+                        },
 
                     ],
 
                 }
             }
         res = self.es.search(index=index_name, query=search_param)
-        print(self.query)  # What enables scientists to better study plants now ?
+        #print(self.query)  # What enables scientists to better study plants now ?
         # print(self.query_pos)
         #print(self.query_lemma)
         # print(query_ne)
