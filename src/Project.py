@@ -12,8 +12,9 @@ from elasticsearch import Elasticsearch
 
 class Project():
     nlp = stanza.Pipeline(lang='en',
-                          processors='tokenize,mwt,pos,lemma,depparse,ner')  # spaCy tokenizer is currently only allowed in English pipeline.
+                          processors='tokenize,mwt,pos,lemma,depparse,ner')
     es = Elasticsearch([{'host': 'localhost', 'port': 9200}])
+
     index_name = 'articles'
     query = ""
     query_pos = ""
@@ -28,12 +29,16 @@ class Project():
     # priorityQueue
     pq = PriorityQueue()
 
+    # %%
+    def delete_sentence_index(self):
+        self.es.indices.delete(index='sentences', ignore=400)
+
+    # %%
+
     # insert/index the articles into elasticsearch
     def insert_data_elasticsearch(self):
         # Using WordNet, extract hypernymns, hyponyms, meronyms, AND holonyms as features
         nltk.download('wordnet')
-
-        # %%
 
         stanza.download('en')
         # added depparse for dependency parsing
@@ -44,7 +49,6 @@ class Project():
             Project.es.indices.create(index=Project.index_name, ignore=400)
             print("index created")
 
-        # %%
         # NLP pipeline
         # Tokenize text into  sentences and words.
         # Lemmatize the words to extract lemmas as features
@@ -93,7 +97,8 @@ class Project():
                 print(res['result'])
                 # article.close()
 
-    def index_sentences_elasticsearch(self,index_name):
+    # %%
+    def index_sentences_elasticsearch(self, index_name):
         path = os.path.join(os.getcwd(), '..', 'articles')
         for article in os.listdir(path):
             # avoid .ds_store hidden file
@@ -129,12 +134,13 @@ class Project():
 
                         es_sentence = {
                             'article_id': int(article_id),
+                            'original_sentence': sentence.text,
                             'text': tokens,
                             'pos': pos,
                             'ne': ne,
                             'lemmas': lemmas,
                         }
-                        print(article_id, tokens)
+                        # print(article_id, tokens)
                         res = self.es.index(index=index_name, document=es_sentence)
                         # print(res['result'])
                         # print(tokens)
@@ -165,11 +171,12 @@ class Project():
     #
     #
     #
-    # %%
 
     # query processing
     # ADD dependency parsing and wordnet
-    def query_articles(self,question):
+
+    # %%
+    def query_articles(self, question):
         question = question
         query = ""
         query_pos = ""
@@ -180,9 +187,7 @@ class Project():
         hyponyms = ""
         meronyms = ""
         holonyms = ""
-        dependency_parsing = []
 
-        # also perform dependency parsing
         query_nlp = Project.nlp(question)
         for sentence in query_nlp.sentences:
             for word in sentence.words:
@@ -229,17 +234,17 @@ class Project():
             for ent in sentence.ents:
                 # named entity format is like this: entity_type
                 query_ne += ent.text + "_" + ent.type + " "
-        # %%
-        print(query)
-        print(query_pos)
-        print(query_lemma)
-        print(query_ne)
-        print(synonyms)
-        print(hypernyms)
-        print(hyponyms)
-        print(holonyms)
-        print(meronyms)
-        print(query + synonyms + hypernyms)
+
+        #        print(query)
+        #        print(query_pos)
+        #        print(query_lemma)
+        #        print(query_ne)
+        #        print(synonyms)
+        #        print(hypernyms)
+        #        print(hyponyms)
+        #        print(holonyms)
+        #        print(meronyms)
+        #        print(query + synonyms + hypernyms)
 
         search_param = {
 
@@ -291,17 +296,26 @@ class Project():
 
         # execute query
         res = Project.es.search(index=Project.index_name, query=search_param)
-        print('===================================')
-        #print('res', res)
-        print('===================================')
-        #print([(hit['_source']['article_id'], hit['_score']) for hit in res['hits']['hits']])
+        # print('===================================')
+        # print('res', res)
+        # print('===================================')
+        # print([(hit['_source']['article_id'], hit['_score']) for hit in res['hits']['hits']])
         result = [hit['_source']['article_id'] for hit in res['hits']['hits']]
         return result
         # [(222, 28.443619), (360, 20.216982), (273, 19.12777), (177, 17.02761), (287, 15.546484), (288, 14.089401), (179, 14.036338), (56, 13.599551), (109, 12.828577), (282, 12.752726)]
 
     # %%
-    #Build the query, query_POS,query_lemma and wordnet, only need to run it once
+    # Build the query, query_POS,query_lemma and wordnet, only need to run it once
     def query_builder(self, sentence):
+        self.query = ""
+        self.query_pos = ""
+        self.query_lemma = ""
+        self.query_ne = ""
+        self.synonyms = ""
+        self.hypernyms = ""
+        self.hyponyms = ""
+        self.holonyms = ""
+        self.meronyms = ""
 
         for word in sentence.words:
             # tokenize a sentence.
@@ -348,11 +362,13 @@ class Project():
             # named entity format is like this: entity_type
             self.query_ne += ent.text + "_" + ent.type + " "
 
+    # %%
     # Run query_builder before running this one, it builds proper search_param for the elasticsearch, need to run multiple times for different article_id
+    # Output: single search result in list.  (score after weigh, articles id, sentence)
     def search_param_builder(self, question, articlesId, index_name):
-        quesiton = question.strip().lower()
-        quesiton_arr = quesiton.split()
-        if quesiton_arr[0] != 'what':
+        question = question.strip().lower()
+        question_arr = question.split()
+        if question_arr[0] != 'what':
             search_param = {
 
                 "bool": {
@@ -374,7 +390,6 @@ class Project():
                                 "lemma": self.query_lemma
                             }
                         },
-
 
                     ],
 
@@ -413,41 +428,46 @@ class Project():
                 }
             }
         res = self.es.search(index=index_name, query=search_param)
-        #print(self.query)  # What enables scientists to better study plants now ?
+        # print(self.query)  # What enables scientists to better study plants now ?
         # print(self.query_pos)
-        #print(self.query_lemma)
+        # print(self.query_lemma)
         # print(query_ne)
-        #print('synonyms ==> ', self.synonyms)
-        #print('hypernyms ==> ', self.hypernyms)
+        # print('synonyms ==> ', self.synonyms)
+        # print('hypernyms ==> ', self.hypernyms)
         # print(self.query + self.synonyms + self.hypernyms)
-        #print('===================================')
+        # print('===================================')
         # print('res', res)
-        #print('===================================')
-        result = [(" ".join(hit['_source']['text']), hit['_score'], hit['_source']['article_id']) for hit in res['hits']['hits']]
-        #print(result)
+        # print('===================================')
+        # result = [(" ".join(hit['_source']['text']), hit['_score'], hit['_source']['article_id']) for hit in res['hits']['hits']]
+        result = [(hit['_source']['original_sentence'], hit['_score'], hit['_source']['article_id']) for hit in
+                  res['hits']['hits']]
+        # print(result)
 
-        #print([( hit['_source']['article_id'], hit['_score']) for hit in
-               #res['hits']['hits']])
+        # print([( hit['_source']['article_id'], hit['_score']) for hit in
+        # res['hits']['hits']])
         return result
 
-
+    # %%
+    # output list (score, id, text) with weigh
     def search_sentences(self, question, articlesId, index_name, weigh):
+        results = []
+        self.pq.queue.clear()
         query_nlp = self.nlp(question)
         for sentence in query_nlp.sentences:
             self.query_builder(sentence)
         for id in articlesId:
-            tuple_list_total = self.search_param_builder(question, id, index_name)  #('text', 21.672752, 222)
+            tuple_list_total = self.search_param_builder(question, id, index_name)  # ('text', 21.672752, 222)
             for tuple_list in tuple_list_total:
-                self.pq.put((tuple_list[1] * -1 * weigh, tuple_list[2], tuple_list[0]))    #(score, id, text)
+                self.pq.put((tuple_list[1] * -1 * weigh, tuple_list[2], tuple_list[0]))  # (score, id, text)
             weigh -= 1
 
         top_10 = 0
         while top_10 < 10:
-            top_10 +=1
-            print(f'top {top_10} sentences ', self.pq.get())
+            top_10 += 1
+            # print(f'top {top_10} sentences ', self.pq.get())
+            results.append(self.pq.get())
 
-
-
+        return results
 
     # %%
     # test the accuracy of the IR model on QA data
@@ -534,3 +554,58 @@ class Project():
         print("total questions: " + str(total_sen))
         print("top 1: " + str(num_top1))
         print("accuracy: %f" % (num_top10 / total_sen))
+
+    # %%
+    # test the accuracy of the sentence retrieval model on QA data
+    # ~20 min to run
+    def sentence_accuracy(self):
+        total_sen = 0
+        num_top10 = 0
+        num_correct = 0
+        #        with open(os.path.join(os.getcwd(), '..', "QA_test\QA Data.txt"), 'r',
+        #                  encoding='utf-8') as data:
+
+        with open(os.path.join(os.getcwd(), "QA_test\QA Data.txt"), 'r',
+                  encoding='utf-8') as data, open("Missed_questions.txt", 'w', encoding='utf-8') as missed:
+            lines = data.readlines()
+            for line in lines:
+                article = line[line.find("[") + 1: line.find(",")]
+                # print(article)
+                new_line = line.split("(", 1)[1]
+                # print(new_line)
+                questions = new_line.split(", (")
+                for question in questions:
+                    total_sen += 1
+                    q = question[1: question.find("?") + 1]
+                    # print(q + "\n")
+                    answer = question[question.find("?") + 5: question.find("')")]
+                    # answer = question[question.find(",") + 2: question.find("')")]
+                    cleaned_answer = answer.strip("'\"")
+
+                    if (q != ""):
+                        articlesId = self.query_articles(q)
+                        results = self.search_sentences(question, articlesId, 'sentences', 10)
+
+                        correct = False
+                        in_top10 = False
+                        top_ans = results[0][2]
+                        for i, result in enumerate(results):
+                            if cleaned_answer in result[2] and in_top10 == False:
+                                if (i == 0):
+                                    num_correct += 1
+                                    correct = True
+                                    break
+                                else:
+                                    num_top10 += 1
+                                    in_top10 = True
+                        if correct == False:
+                            missed.write(article + "\t" + q + "\t" + cleaned_answer + "\t" + top_ans + "\n")
+                            print(q)
+
+        data.close()
+
+        print("num in top 10 sentences but not top 1: " + str(num_top10))
+        print("total questions: " + str(total_sen))
+        print("num correct: " + str(num_correct))
+        print("accuracy: %f" % (num_correct / total_sen))
+
