@@ -776,18 +776,42 @@ class Project():
         return result
 #%%
 
-    def task3(self, example_file_path):
+    def task3_xlsx(self, example_file_path):
         data = pd.read_excel(example_file_path)
+        print(data)
         with open('../QA_test/sample_output.csv','w',newline='') as csvfile:
             spamwriter = csv.writer(csvfile, delimiter=',',quotechar=" ",quoting=csv.QUOTE_MINIMAL)
             for index, row in data.iterrows():
+                #print("progress",index+1)
                 question = row['question']
+                #print("query articles")
                 top10_id = self.query_articles(question) #(article id, score)
                 #print(top10_id)
+                #print("query sentences")
                 result = self.search_sentences(question,top10_id,"sentences",10)  #(score, article_id, answer_sentence) in list
                 article_id = result[0][1]
                 answer_sentence = result[0][2]
                 #print(article_id)
                 #print(answer_sentence)
+                #print("writing")
                 spamwriter.writerow([question, article_id, answer_sentence])
+
+
+    def task3_txt(self, example_file_path):
+
+        with open('../QA_test/sample_output.txt','w',newline='', encoding='utf-8') as csvfile, open(example_file_path,'r',newline='', encoding='utf-8') as articles:
+            spamwriter = csv.writer(csvfile, delimiter=',',quotechar=' ', quoting=csv.QUOTE_MINIMAL)
+            article = articles.readlines()
+            for lines in article:
+                line = lines.split('(',1)[1]
+                questions = line.split(', (')
+                for q in questions:
+                    question = q[1:q.find('?')+1]
+                    print(question)
+                    top10_id = self.query_articles(question) #(article id, score)
+                    #print(top10_id)
+                    result = self.search_sentences(question,top10_id,"sentences",10)  #(score, article_id, answer_sentence) in list
+                    article_id = result[0][1]
+                    answer_sentence = result[0][2]
+                    spamwriter.writerow([question, article_id, answer_sentence])
 
