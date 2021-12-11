@@ -29,7 +29,7 @@ print(results[0][2])
 # output CSV
 example_file_path = "../QA_test/sample.xlsx"
 project.task3(example_file_path)
->>>>>>> 9104e8353dd11a46642357c7cdcddeb23475d65a
+
 
 #======================================================
 # num in top 10: 2490
