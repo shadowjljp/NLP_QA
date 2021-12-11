@@ -12,10 +12,11 @@ nlp = stanza.Pipeline(lang='en', processors='tokenize,mwt,pos,lemma,depparse,ner
 #%%
 
 #Input text file to extract the NLP features
-article = input() 
-print("Features from " + article + " will be extracted.")
-#article = "6.txt"
-with open("../articles/" + article,'r', encoding='utf-8') as lines:
+#article = input() 
+#print("Features from " + article + " will be extracted.")
+article = "questions.txt"
+#with open("../articles/" + article,'r', encoding='utf-8') as lines:
+with open(article,'r', encoding='utf-8') as lines:
     sentences = []
     tokens = []
     lemmas = []
@@ -26,6 +27,7 @@ with open("../articles/" + article,'r', encoding='utf-8') as lines:
     hyponyms = []
     meronyms = []
     holonyms = []
+    synonyms = []
     
     for line in lines:
         doc = nlp(line)
@@ -68,44 +70,54 @@ with open("../articles/" + article,'r', encoding='utf-8') as lines:
                     synset = wordnet.synsets(word.text, pos=wordnet.ADV)
                 else:
                     synset = []
-        
-                #not doing WSD, so just take first sense
-                if(len(synset) > 0):
-                    #extract hypernyms
-                    if(len(synset[0].hypernyms()) > 0):
-                        hyper = word.text + ": "
-                        for h in synset[0].hypernyms():
-                            h_name = h.name().split('.')[0]
-                            hyper += h_name + " "
-                        hyper += "|"
-                        hypernym_sen.append(hyper)
                     
-                    #extract hyponyms
-                    if(len(synset[0].hyponyms()) > 0):
-                        hypo = word.text + ": "
-                        for h in synset[0].hyponyms():
-                            h_name = h.name().split('.')[0]
-                            hypo += h_name + " "
-                        hypo += "|"
-                        hyponym_sen.append(hypo)
+                if(len(synset) > 0):  
+                    syn = word.text + ": "
+                    for s in synset:
+                        for l in s.lemmas():
+                            if l.name() not in syn:
+                                syn += l.name() + " "
+                    syn += "|"
+                    synonym_sen.append(syn)
                     
-                    #extract holonyms
-                    if(len(synset[0].part_holonyms()) > 0):
-                        holo = word.text + ": "
-                        for h in synset[0].part_holonyms():
-                            h_name = h.name().split('.')[0]
-                            holo += h_name + " "
-                        holo += "|"
-                        holonym_sen.append(holo)
                     
-                    #extract meronyms
-                    if(len(synset[0].part_meronyms()) > 0):
-                        mero = word.text + ": "
-                        for h in synset[0].part_meronyms():
-                            h_name = h.name().split('.')[0]
-                            mero += h_name + " "
-                        mero += "|"
-                        meronym_sen.append(mero)
+                for syn in synset:
+                    if(len(synset) > 0):
+                        #extract hypernyms
+                        if(len(syn.hypernyms()) > 0):
+                            hyper = word.text + ": "
+                            for h in syn.hypernyms():
+                                for l in h.lemmas():
+                                    hyper += l.name() + " "
+                            hyper += "|"
+                            hypernym_sen.append(hyper)
+                        
+                        #extract hyponyms
+                        if(len(syn.hyponyms()) > 0):
+                            hypo = word.text + ": "
+                            for h in syn.hyponyms():
+                                for l in h.lemmas():
+                                    hypo += l.name() + " "
+                            hypo += "|"
+                            hyponym_sen.append(hypo)
+                        
+                        #extract holonyms
+                        if(len(syn.part_holonyms()) > 0):
+                            holo = word.text + ": "
+                            for h in syn.part_holonyms():
+                                for l in h.lemmas():
+                                    holo += l.name() + " "
+                            holo += "|"
+                            holonym_sen.append(holo)
+                        
+                        #extract meronyms
+                        if(len(syn.part_meronyms()) > 0):
+                            mero = word.text + ": "
+                            for h in syn.part_meronyms():
+                                for l in h.lemmas():
+                                    mero += l.name() + " "
+                            mero += "|"
+                            meronym_sen.append(mero)
                                                 
                         
 #            for ent in sentence.ents:
@@ -121,6 +133,7 @@ with open("../articles/" + article,'r', encoding='utf-8') as lines:
             hyponyms.append(hyponym_sen)
             meronyms.append(meronym_sen)
             holonyms.append(holonym_sen)
+            synonyms.append(synonym_sen)
                 
                 
 #%%
@@ -132,6 +145,7 @@ with open("Task1_Output.txt", 'w', encoding='utf-8') as output:
         output.write("Lemmas: " + " ".join(lemmas[i]) + "\n")
         output.write("POS: " + "  ".join(pos[i]) + "\n")
         output.write("Dependency parsing: " + "\t".join(dep[i]) + "\n")
+        output.write("Synonyms: " + " ".join(synonyms[i]) + "\n")
         output.write("Hypernyms: " + " ".join(hypernyms[i]) + "\n")
         output.write("Hyponyms: " + " ".join(hyponyms[i]) + "\n")
         output.write("Holonyms: " + " ".join(meronyms[i]) + "\n")
