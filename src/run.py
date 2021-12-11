@@ -13,9 +13,10 @@ project = Project()
 # query
 question = "Persians make up what percentage of Iran's population?"
 
-articlesId = project.query_articles(question)
-results = project.search_sentences(question, articlesId, 'sentences', 10)
-print(results[0][2])
+
+#articlesId = project.query_articles(question)
+#results = project.search_sentences(question, articlesId, 'sentences', 10)
+#print(results[0][2])
 # %%
 # accuracy
 #project.article_accuracy()
@@ -28,8 +29,12 @@ project.sentence_accuracy()
 #for task3 taking input file :xlsx
 # output CSV
 example_file_path = "../QA_test/sample.xlsx"
-project.task3(example_file_path)
+#project.task3_xlsx(example_file_path)
 
+#for task3 taking input file :txt
+# output CSV
+example_file_path_txt = "../QA_test/short_test.txt"
+project.task3_txt(example_file_path_txt)
 
 #======================================================
 # num in top 10: 2490
