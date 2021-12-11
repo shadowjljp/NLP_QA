@@ -1,9 +1,11 @@
+import pandas as pd
 import requests
 import stanza
 import os  # to access files
 import nltk
 from nltk.corpus import wordnet
 from queue import PriorityQueue
+import csv
 # https://www.elastic.co/guide/en/elasticsearch/reference/current/zip-windows.html
 # https://towardsdatascience.com/getting-started-with-elasticsearch-in-python-c3598e718380
 # setup elastic search locally
@@ -486,6 +488,7 @@ class Project():
             }
                 
         res = self.es.search(index=index_name, query=search_param)
+
         result = [(hit['_source']['original_sentence'], hit['_score'], hit['_source']['article_id']) for hit in
                   res['hits']['hits']]
 
@@ -566,7 +569,8 @@ class Project():
         total_sen = 0
         num_top10 = 0
         num_correct = 0
-        with open(os.path.join(os.getcwd(), '..', "QA_test\QA Data.txt"), 'r',
+
+        with open(os.path.join(os.getcwd(),"..", "QA_test\QA Data.txt"), 'r',
                   encoding='utf-8') as data, open("Missed_questions.txt", 'w', encoding='utf-8') as missed:
 
 #        with open(os.path.join(os.getcwd(), "QA_test\QA Data.txt"), 'r',
@@ -770,3 +774,20 @@ class Project():
         # print([( hit['_source']['article_id'], hit['_score']) for hit in
         # res['hits']['hits']])
         return result
+#%%
+
+    def task3(self, example_file_path):
+        data = pd.read_excel(example_file_path)
+        with open('../QA_test/sample_output.csv','w',newline='') as csvfile:
+            spamwriter = csv.writer(csvfile, delimiter=',',quotechar=" ",quoting=csv.QUOTE_MINIMAL)
+            for index, row in data.iterrows():
+                question = row['question']
+                top10_id = self.query_articles(question) #(article id, score)
+                #print(top10_id)
+                result = self.search_sentences(question,top10_id,"sentences",10)  #(score, article_id, answer_sentence) in list
+                article_id = result[0][1]
+                answer_sentence = result[0][2]
+                #print(article_id)
+                #print(answer_sentence)
+                spamwriter.writerow([question, article_id, answer_sentence])
+
