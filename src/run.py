@@ -11,7 +11,7 @@ project = Project()
 #~25 min
 #%%
 # query
-question = "When did Tucson's main power plant begin operation?"
+question = "Persians make up what percentage of Iran's population?"
 
 articlesId = project.query_articles(question)
 results = project.search_sentences(question, articlesId, 'sentences', 10)
@@ -19,7 +19,7 @@ print(results[0][2])
 # %%
 # accuracy
 #project.article_accuracy()
-#project.sentence_accuracy()
+project.sentence_accuracy()
 
 
 

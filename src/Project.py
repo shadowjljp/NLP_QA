@@ -386,7 +386,7 @@ class Project():
 
                 "bool": {
                     "must" : {"match": {
-                                "ne_types": "DATE"
+                                "ne_types": "DATE + CARDINAL + NUMBER"
                                 }
                             },
                     "filter": {
@@ -585,7 +585,7 @@ class Project():
                 for question in questions:
                     total_sen += 1
                     q = question[1: question.find("?") + 1]
-                    # print(q + "\n")
+                    #print(q + "\n")
                     answer = question[question.find("?") + 5: question.find("')")]
                     # answer = question[question.find(",") + 2: question.find("')")]
                     cleaned_answer = answer.strip("'\"")
