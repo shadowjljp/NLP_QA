@@ -11,7 +11,7 @@ project = Project()
 #~25 min
 #%%
 # query
-question = "Persians make up what percentage of Iran's population?"
+#question = "Persians make up what percentage of Iran's population?"
 
 
 #articlesId = project.query_articles(question)
@@ -20,7 +20,7 @@ question = "Persians make up what percentage of Iran's population?"
 # %%
 # accuracy
 #project.article_accuracy()
-project.sentence_accuracy()
+#project.sentence_accuracy()
 
 
 
@@ -42,5 +42,9 @@ project.task3_txt(example_file_path_txt)
 # top 1: 2280
 # accuracy: 0.994012
 
+#%%
+#for task1
+# output txt file
+project.task1("../articles/6.txt")
 
 

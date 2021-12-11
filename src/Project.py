@@ -815,3 +815,99 @@ class Project():
                     answer_sentence = result[0][2]
                     spamwriter.writerow([question, article_id, answer_sentence])
 
+#%%
+    def task1(self, file_path):
+        print("starting Task 1")
+        with open(file_path,'r', encoding='utf-8') as lines:
+            sentences = []
+            tokens = []
+            lemmas = []
+            pos = []
+            dep = []
+            hypernyms = []
+            hyponyms = []
+            meronyms = []
+            holonyms = []
+            synonyms = []
+            
+            for line in lines:
+                doc = self.nlp(line)
+                for sentence in doc.sentences:   
+                    sentences.append(sentence.text)
+                    dep_sen = []
+                    synonym_sen = ""
+                    hypernym_sen = ""
+                    hyponym_sen = ""
+                    meronym_sen = ""
+                    holonym_sen = ""
+                    
+                    for word in sentence.words:                        
+                        # Dependency Parsing
+                        if word.head > 0:
+                            head = sentence.words[word.head - 1].text
+                        else:
+                            head = "root"
+                        dep_sen.append('id:' + str(word.id) + '\tword:' +  word.text + '\thead id:'+ str(word.head) + '\thead:' + head + '\tdeprel:' + word.deprel + '\n')
+                        
+                        # Use WordNet to extract the hypernyms, hyponyms, meronyms, and holonyms
+                        if word.upos == "NOUN":
+                            synset = wordnet.synsets(word.text, pos=wordnet.NOUN)
+                        elif word.upos == "VERB":
+                            synset = wordnet.synsets(word.text, pos=wordnet.VERB)
+                        elif word.upos == "ADJ":
+                            synset = wordnet.synsets(word.text, pos=wordnet.ADJ)
+                        elif word.upos == "ADV":
+                            synset = wordnet.synsets(word.text, pos=wordnet.ADV)
+                        else:
+                            synset = []
+                            
+                        if(len(synset) > 0):  
+                            synonym_sen += word.text + ": " + self.extract_synonyms(synset) + "|"
+                            
+                            
+                        for syn in synset:
+                            if(len(synset) > 0):
+                                #extract hypernyms
+                                if(len(syn.hypernyms()) > 0):
+                                    hypernym_sen += word.text + ": " + self.extract_hypernyms(synset) + "|"
+                                
+                                #extract hyponyms
+                                if(len(syn.hyponyms()) > 0):
+                                    hypernym_sen += word.text + ": " + self.extract_hyponyms(synset) + "|"
+                                
+                                #extract holonyms
+                                if(len(syn.part_holonyms()) > 0):
+                                    holonym_sen += word.text + ": " + self.extract_holonyms(synset) + "|"
+                                   
+                                #extract meronyms
+                                if(len(syn.part_meronyms()) > 0):
+                                    meronym_sen += word.text + ": " + self.extract_meronyms(synset) + "|"
+                                                        
+                                
+                                
+                    tokens.append(self.extract_tokens(sentence))
+                    pos.append(self.extract_pos(sentence))
+                    lemmas.append(self.extract_lemmas(sentence, True))
+                    dep.append(dep_sen)
+                    hypernyms.append(hypernym_sen)
+                    hyponyms.append(hyponym_sen)
+                    meronyms.append(meronym_sen)
+                    holonyms.append(holonym_sen)
+                    synonyms.append(synonym_sen)
+                        
+                        
+        #Write the extracted features to a text file called Task1_Output.txt
+        with open("Task1_Output.txt", 'w', encoding='utf-8') as output:
+            for i, sen in enumerate(sentences):
+                output.write("Sentence " + str(i) + ": " + sen + "\n")
+                output.write("Tokens: " + tokens[i] + "\n")
+                output.write("Lemmas: " + lemmas[i] + "\n")
+                output.write("POS: " + pos[i] + "\n")
+                output.write("Dependency parsing: " + "\t".join(dep[i]) + "\n")
+                output.write("Synonyms: " + synonyms[i] + "\n")
+                output.write("Hypernyms: " + hypernyms[i] + "\n")
+                output.write("Hyponyms: " + hyponyms[i] + "\n")
+                output.write("Holonyms: " + meronyms[i] + "\n")
+                output.write("Meronyms: " + holonyms[i] + "\n")
+                output.write("\n")
+        print("Task 1 finished")
