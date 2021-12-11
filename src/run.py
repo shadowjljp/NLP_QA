@@ -18,12 +18,9 @@ results = project.search_sentences(question, articlesId, 'sentences', 10)
 print(results[0][2])
 # %%
 # accuracy
-<<<<<<< HEAD
 #project.article_accuracy()
 #project.sentence_accuracy()
-=======
-# project.accuracy()
-#project.sentence_accuracy()
+
 
 
 
