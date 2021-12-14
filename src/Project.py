@@ -27,7 +27,7 @@ class Project():
     hyponyms = ""
     meronyms = ""
     holonyms = ""
-    size = 15
+    size = 10
 
     # priorityQueue
     pq = PriorityQueue()
@@ -210,12 +210,12 @@ class Project():
     def extract_synonyms(self, synset):
         synonyms = ""
         for syn in synset:
-#                    syn_name = syn.name().split('.')[0]
-#                    if syn_name != word.text and synonyms.find(syn_name) == -1:
-#                        synonyms += syn_name + " "
-            for l in syn.lemmas():
-                if l.name() not in synonyms:
-                    synonyms += l.name() + " "
+            syn_name = syn.name().split('.')[0]
+            if synonyms.find(syn_name) == -1:
+                synonyms += syn_name + " "
+#            for l in syn.lemmas():
+#                if l.name() not in synonyms:
+#                    synonyms += l.name() + " "
         return synonyms
 
 #%% Extract WordNet hypernyms
@@ -237,11 +237,11 @@ class Project():
         for syn in synset:
             hypo = syn.hyponyms()
             for h in hypo:
-#                        h_name = h.name().split('.')[0]
-#                        hyponyms += h_name + " "
-                for l in h.lemmas():
-                    if l.name() not in hyponyms:
-                        hyponyms += l.name() + " "
+                h_name = h.name().split('.')[0]
+                hyponyms += h_name + " "
+#                for l in h.lemmas():
+#                    if l.name() not in hyponyms:
+#                        hyponyms += l.name() + " "
         return hyponyms
 #%% Extract WordNet holonyms
     def extract_holonyms(self, synset):
@@ -249,11 +249,11 @@ class Project():
         for syn in synset:
             holo = syn.part_holonyms()
             for h in holo:
-#                        h_name = h.name().split('.')[0]
-#                        holonyms += h_name + " "
-                for l in h.lemmas():
-                    if l.name() not in holonyms:
-                        holonyms += l.name() + " "
+                h_name = h.name().split('.')[0]
+                holonyms += h_name + " "
+#                for l in h.lemmas():
+#                    if l.name() not in holonyms:
+#                        holonyms += l.name() + " "
         return holonyms
 
 #%% Extract WordNet meronyms
@@ -262,11 +262,11 @@ class Project():
         for syn in synset:
             mero = syn.part_meronyms()
             for m in mero:
-#                        m_name = m.name().split('.')[0]
-#                        meronyms += m_name + " "
-                for l in m.lemmas():
-                    if l.name() not in meronyms:
-                        meronyms += l.name() + " "
+                m_name = m.name().split('.')[0]
+                meronyms += m_name + " "
+#                for l in m.lemmas():
+#                    if l.name() not in meronyms:
+#                        meronyms += l.name() + " "
         return meronyms
     
 #%% Extract Named entities
@@ -284,10 +284,6 @@ class Project():
         query_lemma = ""
         query_ne = ""
         synonyms = ""
-        hypernyms = ""
-        hyponyms = ""
-        meronyms = ""
-        holonyms = ""
 
         query_nlp = Project.nlp(question)
         
@@ -297,7 +293,7 @@ class Project():
             # part of speech tag: format is like this : word_POS
             query_pos += self.extract_pos(sentence)
             # lemma format is like this : word_lemma
-            query_lemma += self.extract_lemmas(sentence, False)
+            #query_lemma += self.extract_lemmas(sentence, False)
             # named entity format is like this: entity_type
             query_ne += self.extract_ne(sentence)
             
@@ -314,11 +310,6 @@ class Project():
                     synset = []
                     
                 synonyms += self.extract_synonyms(synset)
-                hypernyms += self.extract_hypernyms(synset)
-                hyponyms += self.extract_hyponyms(synset)
-                holonyms += self.extract_holonyms(synset)
-                meronyms += self.extract_meronyms(synset)
-
 
             
         search_param = {
@@ -326,7 +317,7 @@ class Project():
             "bool": {
                 "should": [
                     {"match": {
-                        "text": query + synonyms + hypernyms 
+                        "text": query + synonyms
                     }
                     },
                     {
@@ -390,12 +381,14 @@ class Project():
                     synset = []
                     
                 synonyms += self.extract_synonyms(synset)
-                hypernyms += self.extract_hypernyms(synset)
-                hyponyms += self.extract_hyponyms(synset)
-                holonyms += self.extract_holonyms(synset)
-                meronyms += self.extract_meronyms(synset)
+                #hypernyms += self.extract_hypernyms(synset)
+                #hyponyms += self.extract_hyponyms(synset)
+                #holonyms += self.extract_holonyms(synset)
+                #meronyms += self.extract_meronyms(synset)
+                
                 #print(synonyms)
                 
+                #dependency parsing
                 if word.head > 0:
                     head = sentence.words[word.head - 1].text
                 if "nsubj" in word.deprel:
@@ -415,8 +408,8 @@ class Project():
                     },
                     "should": [
                         {"match": {
-                            "text": query + synonyms #+ hypernyms
-                        }
+                            "text": query + synonyms 
+                            }
                         },
                         {
                             "match": {
@@ -425,7 +418,7 @@ class Project():
                         },
                         {
                             "match": {
-                                "lemma": query_lemma
+                                "lemmas": query_lemma
                             }
                         },
                         {
@@ -464,16 +457,9 @@ class Project():
                     "filter": {
                         "term": {"article_id": articlesId},
                     },
-                    "should": [
-#                        {"match": {
-#                             "ne_types": { 
-#                                "query": "PERSON + ORG",
-#                                "boost": 3
-#                            }
-#                        }
-#                        },
+                    "should": [   
                         {"match": {
-                            "text": query + synonyms #+ hypernyms
+                            "text": query + synonyms 
                         }
                         },
                         {
@@ -483,7 +469,7 @@ class Project():
                         },
                         {
                             "match": {
-                                "lemma": query_lemma
+                                "lemmas": query_lemma
                             }
                         },
                         {
@@ -505,7 +491,7 @@ class Project():
                             "match": {
                                 "dobj": dobj
                             }
-                        },    
+                        }
                     ],
     
                 }
@@ -518,7 +504,7 @@ class Project():
                     },
                     "should": [
                         {"match": {
-                            "text": query + synonyms #+ hypernyms
+                            "text": query + synonyms 
                         }
                         },
                         {
@@ -528,12 +514,12 @@ class Project():
                         },
                         {
                             "match": {
-                                "ne": query_ne
+                                "lemmas": query_lemma
                             }
                         },
                         {
                             "match": {
-                                "lemma": query_lemma
+                                "ne": query_ne
                             }
                         },
                         {
@@ -563,213 +549,6 @@ class Project():
                   res['hits']['hits']]
 
         return result
-
-#%%   
-    def query_sentences_no_article(self, question, index_name):
-        query = ""
-        query_pos = ""
-        query_lemma = ""
-        query_ne = ""
-        synonyms = ""
-        hypernyms = ""
-        hyponyms = ""
-        holonyms = ""
-        meronyms = ""
-        
-        query_nlp = Project.nlp(question)
-        
-        for sentence in query_nlp.sentences:
-            # tokenize a sentence.
-            query += self.extract_tokens(sentence)
-            # part of speech tag: format is like this : word_POS
-            query_pos += self.extract_pos(sentence)
-            # lemma format is like this : word_lemma
-            query_lemma += self.extract_lemmas(sentence, False)
-            # named entity format is like this: entity_type
-            query_ne += self.extract_ne(sentence)
-            
-            head = ""
-            nsubj = ""
-            dobj = ""
-            for word in sentence.words:
-                if word.upos == "NOUN":
-                    synset = wordnet.synsets(word.text, pos=wordnet.NOUN)
-                elif word.upos == "VERB":
-                    synset = wordnet.synsets(word.text, pos=wordnet.VERB)
-                elif word.upos == "ADJ":
-                    synset = wordnet.synsets(word.text, pos=wordnet.ADJ)
-                elif word.upos == "ADV":
-                    synset = wordnet.synsets(word.text, pos=wordnet.ADV)
-                else:
-                    synset = []
-                    
-                synonyms += self.extract_synonyms(synset)
-                hypernyms += self.extract_hypernyms(synset)
-                hyponyms += self.extract_hyponyms(synset)
-                holonyms += self.extract_holonyms(synset)
-                meronyms += self.extract_meronyms(synset)
-                #print(synonyms)
-                
-                if word.head > 0:
-                    head = sentence.words[word.head - 1].text
-                if "nsubj" in word.deprel:
-                        nsubj += word.text + " "
-                if "obj" in word.deprel:
-                        dobj += word.text + " "
-            
-        if "when" in question.lower():
-            search_param = {
-                "bool": {
-                    "must" : {"match": {
-                                "ne_types": "DATE + CARDINAL + NUMBER"
-                                }
-                            },
-                    "should": [
-                        {"match": {
-                            "text": query + synonyms #+ hypernyms
-                        }
-                        },
-                        {
-                            "match": {
-                                "pos": query_pos
-                            }
-                        },
-                        {
-                            "match": {
-                                "lemma": query_lemma
-                            }
-                        },
-                        {
-                            "match": {
-                                "ne": query_ne
-                            }
-                        },
-                        {
-                            "match": {
-                                "head": head
-                            }
-                        },
-                        {
-                            "match": {
-                                "nsubj": nsubj
-                            }
-                        },
-                        {
-                            "match": {
-                                "dobj": dobj
-                            }
-                        }
-    
-                    ],
-    
-                }
-            }
-        elif "who" in question.lower():
-            search_param = {
-
-                "bool": {
-                    "must" : {"match": {
-                                "ne_types": "PERSON + ORG"
-                                }
-                            }, 
-                    "should": [
-#                        {"match": {
-#                             "ne_types": { 
-#                                "query": "PERSON + ORG",
-#                                "boost": 3
-#                            }
-#                        }
-#                        },
-                        {"match": {
-                            "text": query + synonyms #+ hypernyms
-                        }
-                        },
-                        {
-                            "match": {
-                                "pos": query_pos
-                            }
-                        },
-                        {
-                            "match": {
-                                "lemma": query_lemma
-                            }
-                        },
-                        {
-                            "match": {
-                                "ne": query_ne
-                            }
-                        },
-                        {
-                            "match": {
-                                "head": head
-                            }
-                        },
-                        {
-                            "match": {
-                                "nsubj": nsubj
-                            }
-                        },
-                        {
-                            "match": {
-                                "dobj": dobj
-                            }
-                        },    
-                    ],
-    
-                }
-            }
-        else:
-            search_param = {
-                "bool": {
-                    "should": [
-                        {"match": {
-                            "text": query + synonyms #+ hypernyms
-                        }
-                        },
-                        {
-                            "match": {
-                                "pos": query_pos
-                            }
-                        },
-                        {
-                            "match": {
-                                "ne": query_ne
-                            }
-                        },
-                        {
-                            "match": {
-                                "lemma": query_lemma
-                            }
-                        },
-                        {
-                            "match": {
-                                "head": head
-                            }
-                        },
-                        {
-                            "match": {
-                                "nsubj": nsubj
-                            }
-                        },
-                        {
-                            "match": {
-                                "dobj": dobj
-                            }
-                        }
-    
-                    ],
-    
-                }
-            }
-                
-        res = self.es.search(index=index_name, query=search_param)        
-
-        result = [(hit['_score'], hit['_source']['article_id'], hit['_source']['original_sentence']) for hit in
-                  res['hits']['hits']]
-
-        return result
-        
-    
 
     # %%
     # output list (score, id, text) with weigh
@@ -838,7 +617,6 @@ class Project():
 
     # %%
     # test the accuracy of the sentence retrieval model on QA data
-    # ~20 min to run
     def sentence_accuracy(self):
         total_sen = 0
         num_top10 = 0
@@ -852,7 +630,7 @@ class Project():
             lines = data.readlines()
             for line in lines:
                 article = line[line.find("[") + 1: line.find(",")]
-                # print(article)
+                print(article)
                 new_line = line.split("(", 1)[1]
                 # print(new_line)
                 questions = new_line.split(", (")
@@ -866,7 +644,7 @@ class Project():
 
                     if (q != ""):
                         articlesId = self.query_articles(q)
-                        results = self.search_sentences(q, articlesId, 'sentences', 15)
+                        results = self.search_sentences(q, articlesId, 'sentences', 10)
 
                         correct = False
                         in_top10 = False
@@ -1104,6 +882,7 @@ class Project():
             tokens = []
             lemmas = []
             pos = []
+            ne = []
             dep = []
             hypernyms = []
             hyponyms = []
@@ -1121,6 +900,7 @@ class Project():
                     hyponym_sen = ""
                     meronym_sen = ""
                     holonym_sen = ""
+                    ne_sen = []
                     
                     for word in sentence.words:                        
                         # Dependency Parsing
@@ -1164,12 +944,15 @@ class Project():
                                 if(len(syn.part_meronyms()) > 0):
                                     meronym_sen += word.text + ": " + self.extract_meronyms(synset) + "|"
                                                         
-                                
+                    for ent in sentence.ents:
+                        #named entity format is like this: entity_type
+                        ne_sen.append(ent.text + "_" + ent.type)            
                                 
                     tokens.append(self.extract_tokens(sentence))
                     pos.append(self.extract_pos(sentence))
                     lemmas.append(self.extract_lemmas(sentence, True))
                     dep.append(dep_sen)
+                    ne.append(ne_sen)
                     hypernyms.append(hypernym_sen)
                     hyponyms.append(hyponym_sen)
                     meronyms.append(meronym_sen)
@@ -1185,6 +968,7 @@ class Project():
                 output.write("Lemmas: " + lemmas[i] + "\n")
                 output.write("POS: " + pos[i] + "\n")
                 output.write("Dependency parsing: " + "\t".join(dep[i]) + "\n")
+                output.write("Named entities: " + " ".join(ne[i]) + "\n")
                 output.write("Synonyms: " + synonyms[i] + "\n")
                 output.write("Hypernyms: " + hypernyms[i] + "\n")
                 output.write("Hyponyms: " + hyponyms[i] + "\n")
@@ -1192,3 +976,232 @@ class Project():
                 output.write("Meronyms: " + holonyms[i] + "\n")
                 output.write("\n")
         print("Task 1 finished")
+        
+#%%
+#extract the article id, question, and answer from QA Data
+    def extract_QA(self):
+        with open(os.path.join(os.getcwd(),"..", "QA_test\QA Data.txt"), 'r',
+                  encoding='utf-8') as data, open("Questions_answers.txt", 'w', encoding='utf-8') as qa:
+
+            lines = data.readlines()
+            for line in lines:
+                article = line[line.find("[") + 1: line.find(",")]
+                print(article)
+                new_line = line.split("(", 1)[1]
+                # print(new_line)
+                questions = new_line.split(", (")
+                for question in questions:
+                    q = question[1: question.find("?") + 1]
+                    #print(q + "\n")
+                    answer = question[question.find("?") + 5: question.find("')")]
+                    # answer = question[question.find(",") + 2: question.find("')")]
+                    cleaned_answer = answer.strip("'\"")
+                    
+                    qa.write(article + "\t" + q + "\t" + cleaned_answer + "\n")
+
+        data.close()
+
+#%%   
+    def query_sentences_no_article(self, question, index_name):
+        query = ""
+        query_pos = ""
+        query_lemma = ""
+        query_ne = ""
+        synonyms = ""
+        hypernyms = ""
+        hyponyms = ""
+        holonyms = ""
+        meronyms = ""
+        
+        query_nlp = Project.nlp(question)
+        
+        for sentence in query_nlp.sentences:
+            # tokenize a sentence.
+            query += self.extract_tokens(sentence)
+            # part of speech tag: format is like this : word_POS
+            query_pos += self.extract_pos(sentence)
+            # lemma format is like this : word_lemma
+            query_lemma += self.extract_lemmas(sentence, False)
+            # named entity format is like this: entity_type
+            query_ne += self.extract_ne(sentence)
+            
+            head = ""
+            nsubj = ""
+            dobj = ""
+            for word in sentence.words:
+                if word.upos == "NOUN":
+                    synset = wordnet.synsets(word.text, pos=wordnet.NOUN)
+                elif word.upos == "VERB":
+                    synset = wordnet.synsets(word.text, pos=wordnet.VERB)
+                elif word.upos == "ADJ":
+                    synset = wordnet.synsets(word.text, pos=wordnet.ADJ)
+                elif word.upos == "ADV":
+                    synset = wordnet.synsets(word.text, pos=wordnet.ADV)
+                else:
+                    synset = []
+                    
+                synonyms += self.extract_synonyms(synset)
+                hypernyms += self.extract_hypernyms(synset)
+                hyponyms += self.extract_hyponyms(synset)
+                holonyms += self.extract_holonyms(synset)
+                meronyms += self.extract_meronyms(synset)
+                #print(synonyms)
+                
+                if word.head > 0:
+                    head = sentence.words[word.head - 1].text
+                if "nsubj" in word.deprel:
+                        nsubj += word.text + " "
+                if "obj" in word.deprel:
+                        dobj += word.text + " "
+            
+        if "when" in question.lower():
+            search_param = {
+                "bool": {
+                    "must" : {"match": {
+                                "ne_types": "DATE + CARDINAL + NUMBER"
+                                }
+                            },
+                    "should": [
+                        {"match": {
+                            "text": query + synonyms #+ hypernyms
+                        }
+                        },
+                        {
+                            "match": {
+                                "pos": query_pos
+                            }
+                        },
+                        {
+                            "match": {
+                                "lemma": query_lemma
+                            }
+                        },
+                        {
+                            "match": {
+                                "ne": query_ne
+                            }
+                        },
+                        {
+                            "match": {
+                                "head": head
+                            }
+                        },
+                        {
+                            "match": {
+                                "nsubj": nsubj
+                            }
+                        },
+                        {
+                            "match": {
+                                "dobj": dobj
+                            }
+                        }
+    
+                    ],
+    
+                }
+            }
+        elif "who" in question.lower():
+            search_param = {
+
+                "bool": {
+                    "must" : {"match": {
+                                "ne_types": "PERSON + ORG"
+                                }
+                            }, 
+                    "should": [
+#                        {"match": {
+#                             "ne_types": { 
+#                                "query": "PERSON + ORG",
+#                                "boost": 3
+#                            }
+#                        }
+#                        },
+                        {"match": {
+                            "text": query + synonyms #+ hypernyms
+                        }
+                        },
+                        {
+                            "match": {
+                                "pos": query_pos
+                            }
+                        },
+                        {
+                            "match": {
+                                "lemma": query_lemma
+                            }
+                        },
+                        {
+                            "match": {
+                                "ne": query_ne
+                            }
+                        },
+                        {
+                            "match": {
+                                "head": head
+                            }
+                        },
+                        {
+                            "match": {
+                                "nsubj": nsubj
+                            }
+                        },
+                        {
+                            "match": {
+                                "dobj": dobj
+                            }
+                        },    
+                    ],
+    
+                }
+            }
+        else:
+            search_param = {
+                "bool": {
+                    "should": [
+                        {"match": {
+                            "text": query + synonyms #+ hypernyms
+                        }
+                        },
+#                        {
+#                            "match": {
+#                                "pos": query_pos
+#                            }
+#                        },
+#                        {
+#                            "match": {
+#                                "ne": query_ne
+#                            }
+#                        },
+#                        {
+#                            "match": {
+#                                "lemma": query_lemma
+#                            }
+#                        },
+                        {
+                            "match": {
+                                "head": head
+                            }
+                        },
+                        {
+                            "match": {
+                                "nsubj": nsubj
+                            }
+                        },
+                        {
+                            "match": {
+                                "dobj": dobj
+                            }
+                        }
+    
+                    ],
+    
+                }
+            }
+                
+        res = self.es.search(index=index_name, query=search_param)        
+
+        result = [(hit['_score'], hit['_source']['article_id'], hit['_source']['original_sentence'], hit['_source']['lemmas']) for hit in
+                  res['hits']['hits']]
+
+        return result
