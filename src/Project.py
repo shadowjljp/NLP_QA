@@ -115,7 +115,6 @@ class Project():
             ne = []
             ne_types = []
             es_sentence = {}
-            
 
             with open(os.path.join(path, article), 'r', encoding='utf-8') as lines:
                 article_id = os.path.splitext(i[-1])[0]
@@ -135,21 +134,21 @@ class Project():
                             # part of speech tag: format is like this : word_POS
                             pos.append(word.text + "_" + word.upos)
                             # lemma format is like this : word_lemma
-                            #lemmas.append(word.text + "_" + word.lemma)
+                            # lemmas.append(word.text + "_" + word.lemma)
                             lemmas.append(word.lemma)
-                            
+
                             if word.head > 0:
                                 head = sentence.words[word.head - 1].text
                             if "nsubj" in word.deprel:
-                                    nsubj += word.text + " "
+                                nsubj += word.text + " "
                             if "obj" in word.deprel:
-                                    dobj += word.text + " "
-                                                        
+                                dobj += word.text + " "
+
                         for ent in sentence.ents:
                             # named entity format is like this: entity_type
                             ne.append(ent.text + "_" + ent.type)
                             ne_types.append(ent.type)
-                        
+
                         es_sentence = {
                             'article_id': int(article_id),
                             'original_sentence': sentence.text,
@@ -174,51 +173,48 @@ class Project():
                         ne_types = []
                         es_sentence = {}
 
-
-
-#%%
-# Extract the tokens
-    def extract_tokens(self,sentence):
+    # %%
+    # Extract the tokens
+    def extract_tokens(self, sentence):
         tokens = ""
         for word in sentence.words:
             tokens += word.text + " "
-                
-        return tokens
-        
 
-#%%
-# Extract the lemmas
-    def extract_lemmas(self,sentence, include_token):
+        return tokens
+
+    # %%
+    # Extract the lemmas
+    def extract_lemmas(self, sentence, include_token):
         lemma = ""
         for word in sentence.words:
             if include_token == True:
                 lemma += word.text + "_" + word.lemma + " "
             else:
-                lemma += word.lemma + " " 
-                
+                lemma += word.lemma + " "
+
         return lemma
 
-#%% Extract the POS tags
-    def extract_pos(self,sentence):
+    # %% Extract the POS tags
+    def extract_pos(self, sentence):
         pos = ""
         for word in sentence.words:
-            pos += word.text + "_" + word.upos + " " 
-            
+            pos += word.text + "_" + word.upos + " "
+
         return pos
 
-#%% Extract WordNet synonyms
+    # %% Extract WordNet synonyms
     def extract_synonyms(self, synset):
         synonyms = ""
         for syn in synset:
-#                    syn_name = syn.name().split('.')[0]
-#                    if syn_name != word.text and synonyms.find(syn_name) == -1:
-#                        synonyms += syn_name + " "
+            #                    syn_name = syn.name().split('.')[0]
+            #                    if syn_name != word.text and synonyms.find(syn_name) == -1:
+            #                        synonyms += syn_name + " "
             for l in syn.lemmas():
                 if l.name() not in synonyms:
                     synonyms += l.name() + " "
         return synonyms
 
-#%% Extract WordNet hypernyms
+    # %% Extract WordNet hypernyms
     def extract_hypernyms(self, synset):
         hypernyms = ""
         for syn in synset:
@@ -226,56 +222,56 @@ class Project():
             for h in hyper:
                 h_name = h.name().split('.')[0]
                 hypernyms += h_name + " "
-#                for l in h.lemmas():
-#                    if l.name() not in hypernyms:
-#                        hypernyms += l.name() + " "
+        #                for l in h.lemmas():
+        #                    if l.name() not in hypernyms:
+        #                        hypernyms += l.name() + " "
         return hypernyms
-            
-#%% Extract WordNet hyponyms
+
+    # %% Extract WordNet hyponyms
     def extract_hyponyms(self, synset):
         hyponyms = ""
         for syn in synset:
             hypo = syn.hyponyms()
             for h in hypo:
-#                        h_name = h.name().split('.')[0]
-#                        hyponyms += h_name + " "
+                #                        h_name = h.name().split('.')[0]
+                #                        hyponyms += h_name + " "
                 for l in h.lemmas():
                     if l.name() not in hyponyms:
                         hyponyms += l.name() + " "
         return hyponyms
-#%% Extract WordNet holonyms
+
+    # %% Extract WordNet holonyms
     def extract_holonyms(self, synset):
         holonyms = ""
         for syn in synset:
             holo = syn.part_holonyms()
             for h in holo:
-#                        h_name = h.name().split('.')[0]
-#                        holonyms += h_name + " "
+                #                        h_name = h.name().split('.')[0]
+                #                        holonyms += h_name + " "
                 for l in h.lemmas():
                     if l.name() not in holonyms:
                         holonyms += l.name() + " "
         return holonyms
 
-#%% Extract WordNet meronyms
+    # %% Extract WordNet meronyms
     def extract_meronyms(self, synset):
         meronyms = ""
         for syn in synset:
             mero = syn.part_meronyms()
             for m in mero:
-#                        m_name = m.name().split('.')[0]
-#                        meronyms += m_name + " "
+                #                        m_name = m.name().split('.')[0]
+                #                        meronyms += m_name + " "
                 for l in m.lemmas():
                     if l.name() not in meronyms:
                         meronyms += l.name() + " "
         return meronyms
-    
-#%% Extract Named entities
+
+    # %% Extract Named entities
     def extract_ne(self, sentence):
         ne = ""
         for ent in sentence.ents:
             ne += ent.text + "_" + ent.type + " "
         return ne
-            
 
     # %%
     def query_articles(self, question):
@@ -290,7 +286,7 @@ class Project():
         holonyms = ""
 
         query_nlp = Project.nlp(question)
-        
+
         for sentence in query_nlp.sentences:
             # tokenize a sentence.
             query += self.extract_tokens(sentence)
@@ -300,7 +296,7 @@ class Project():
             query_lemma += self.extract_lemmas(sentence, False)
             # named entity format is like this: entity_type
             query_ne += self.extract_ne(sentence)
-            
+
             for word in sentence.words:
                 if word.upos == "NOUN":
                     synset = wordnet.synsets(word.text, pos=wordnet.NOUN)
@@ -312,21 +308,19 @@ class Project():
                     synset = wordnet.synsets(word.text, pos=wordnet.ADV)
                 else:
                     synset = []
-                    
+
                 synonyms += self.extract_synonyms(synset)
                 hypernyms += self.extract_hypernyms(synset)
                 hyponyms += self.extract_hyponyms(synset)
                 holonyms += self.extract_holonyms(synset)
                 meronyms += self.extract_meronyms(synset)
 
-
-            
         search_param = {
 
             "bool": {
                 "should": [
                     {"match": {
-                        "text": query + synonyms + hypernyms 
+                        "text": query + synonyms + hypernyms
                     }
                     },
                     {
@@ -349,8 +343,7 @@ class Project():
         result = [hit['_source']['article_id'] for hit in res['hits']['hits']]
         return result
 
-    
-#%%
+    # %%
     def query_sentences(self, question, articlesId, index_name):
         query = ""
         query_pos = ""
@@ -361,9 +354,9 @@ class Project():
         hyponyms = ""
         holonyms = ""
         meronyms = ""
-        
+
         query_nlp = Project.nlp(question)
-        
+
         for sentence in query_nlp.sentences:
             # tokenize a sentence.
             query += self.extract_tokens(sentence)
@@ -373,7 +366,7 @@ class Project():
             query_lemma += self.extract_lemmas(sentence, False)
             # named entity format is like this: entity_type
             query_ne += self.extract_ne(sentence)
-            
+
             head = ""
             nsubj = ""
             dobj = ""
@@ -388,34 +381,34 @@ class Project():
                     synset = wordnet.synsets(word.text, pos=wordnet.ADV)
                 else:
                     synset = []
-                    
+
                 synonyms += self.extract_synonyms(synset)
                 hypernyms += self.extract_hypernyms(synset)
                 hyponyms += self.extract_hyponyms(synset)
                 holonyms += self.extract_holonyms(synset)
                 meronyms += self.extract_meronyms(synset)
-                #print(synonyms)
-                
+                # print(synonyms)
+
                 if word.head > 0:
                     head = sentence.words[word.head - 1].text
                 if "nsubj" in word.deprel:
-                        nsubj += word.text + " "
+                    nsubj += word.text + " "
                 if "obj" in word.deprel:
-                        dobj += word.text + " "
-            
+                    dobj += word.text + " "
+
         if "when" in question.lower():
             search_param = {
                 "bool": {
-                    "must" : {"match": {
-                                "ne_types": "DATE + CARDINAL + NUMBER"
-                                }
-                            },
+                    "must": {"match": {
+                        "ne_types": "DATE + CARDINAL + NUMBER"
+                    }
+                    },
                     "filter": {
                         "term": {"article_id": articlesId},
                     },
                     "should": [
                         {"match": {
-                            "text": query + synonyms #+ hypernyms
+                            "text": query + synonyms  # + hypernyms
                         }
                         },
                         {
@@ -448,32 +441,32 @@ class Project():
                                 "dobj": dobj
                             }
                         }
-    
+
                     ],
-    
+
                 }
             }
         elif "who" in question.lower():
             search_param = {
 
                 "bool": {
-                    "must" : {"match": {
-                                "ne_types": "PERSON + ORG"
-                                }
-                            }, 
+                    "must": {"match": {
+                        "ne_types": "PERSON + ORG"
+                    }
+                    },
                     "filter": {
                         "term": {"article_id": articlesId},
                     },
                     "should": [
-#                        {"match": {
-#                             "ne_types": { 
-#                                "query": "PERSON + ORG",
-#                                "boost": 3
-#                            }
-#                        }
-#                        },
+                        #                        {"match": {
+                        #                             "ne_types": {
+                        #                                "query": "PERSON + ORG",
+                        #                                "boost": 3
+                        #                            }
+                        #                        }
+                        #                        },
                         {"match": {
-                            "text": query + synonyms #+ hypernyms
+                            "text": query + synonyms  # + hypernyms
                         }
                         },
                         {
@@ -505,9 +498,9 @@ class Project():
                             "match": {
                                 "dobj": dobj
                             }
-                        },    
+                        },
                     ],
-    
+
                 }
             }
         else:
@@ -518,7 +511,7 @@ class Project():
                     },
                     "should": [
                         {"match": {
-                            "text": query + synonyms #+ hypernyms
+                            "text": query + synonyms  # + hypernyms
                         }
                         },
                         {
@@ -551,12 +544,12 @@ class Project():
                                 "dobj": dobj
                             }
                         }
-    
+
                     ],
-    
+
                 }
             }
-                
+
         res = self.es.search(index=index_name, query=search_param)
 
         result = [(hit['_source']['original_sentence'], hit['_score'], hit['_source']['article_id']) for hit in
@@ -564,7 +557,7 @@ class Project():
 
         return result
 
-#%%   
+    # %%
     def query_sentences_no_article(self, question, index_name):
         query = ""
         query_pos = ""
@@ -575,9 +568,9 @@ class Project():
         hyponyms = ""
         holonyms = ""
         meronyms = ""
-        
+
         query_nlp = Project.nlp(question)
-        
+
         for sentence in query_nlp.sentences:
             # tokenize a sentence.
             query += self.extract_tokens(sentence)
@@ -587,7 +580,7 @@ class Project():
             query_lemma += self.extract_lemmas(sentence, False)
             # named entity format is like this: entity_type
             query_ne += self.extract_ne(sentence)
-            
+
             head = ""
             nsubj = ""
             dobj = ""
@@ -602,31 +595,31 @@ class Project():
                     synset = wordnet.synsets(word.text, pos=wordnet.ADV)
                 else:
                     synset = []
-                    
+
                 synonyms += self.extract_synonyms(synset)
                 hypernyms += self.extract_hypernyms(synset)
                 hyponyms += self.extract_hyponyms(synset)
                 holonyms += self.extract_holonyms(synset)
                 meronyms += self.extract_meronyms(synset)
-                #print(synonyms)
-                
+                # print(synonyms)
+
                 if word.head > 0:
                     head = sentence.words[word.head - 1].text
                 if "nsubj" in word.deprel:
-                        nsubj += word.text + " "
+                    nsubj += word.text + " "
                 if "obj" in word.deprel:
-                        dobj += word.text + " "
-            
+                    dobj += word.text + " "
+
         if "when" in question.lower():
             search_param = {
                 "bool": {
-                    "must" : {"match": {
-                                "ne_types": "DATE + CARDINAL + NUMBER"
-                                }
-                            },
+                    "must": {"match": {
+                        "ne_types": "DATE + CARDINAL + NUMBER"
+                    }
+                    },
                     "should": [
                         {"match": {
-                            "text": query + synonyms #+ hypernyms
+                            "text": query + synonyms  # + hypernyms
                         }
                         },
                         {
@@ -659,29 +652,29 @@ class Project():
                                 "dobj": dobj
                             }
                         }
-    
+
                     ],
-    
+
                 }
             }
         elif "who" in question.lower():
             search_param = {
 
                 "bool": {
-                    "must" : {"match": {
-                                "ne_types": "PERSON + ORG"
-                                }
-                            }, 
+                    "must": {"match": {
+                        "ne_types": "PERSON + ORG"
+                    }
+                    },
                     "should": [
-#                        {"match": {
-#                             "ne_types": { 
-#                                "query": "PERSON + ORG",
-#                                "boost": 3
-#                            }
-#                        }
-#                        },
+                        #                        {"match": {
+                        #                             "ne_types": {
+                        #                                "query": "PERSON + ORG",
+                        #                                "boost": 3
+                        #                            }
+                        #                        }
+                        #                        },
                         {"match": {
-                            "text": query + synonyms #+ hypernyms
+                            "text": query + synonyms  # + hypernyms
                         }
                         },
                         {
@@ -713,9 +706,9 @@ class Project():
                             "match": {
                                 "dobj": dobj
                             }
-                        },    
+                        },
                     ],
-    
+
                 }
             }
         else:
@@ -723,7 +716,7 @@ class Project():
                 "bool": {
                     "should": [
                         {"match": {
-                            "text": query + synonyms #+ hypernyms
+                            "text": query + synonyms  # + hypernyms
                         }
                         },
                         {
@@ -756,31 +749,29 @@ class Project():
                                 "dobj": dobj
                             }
                         }
-    
+
                     ],
-    
+
                 }
             }
-                
-        res = self.es.search(index=index_name, query=search_param)        
+
+        res = self.es.search(index=index_name, query=search_param)
 
         result = [(hit['_score'], hit['_source']['article_id'], hit['_source']['original_sentence']) for hit in
                   res['hits']['hits']]
 
         return result
-        
-    
 
     # %%
     # output list (score, id, text) with weigh
     def search_sentences(self, question, articlesId, index_name, weigh):
         results = []
         self.pq.queue.clear()
-        #query_nlp = self.nlp(question)
-        #for sentence in query_nlp.sentences:
-            #self.query_builder(sentence)
+        # query_nlp = self.nlp(question)
+        # for sentence in query_nlp.sentences:
+        # self.query_builder(sentence)
         for id in articlesId:
-            #tuple_list_total = self.search_param_builder(question, id, index_name)  # ('text', 21.672752, 222)
+            # tuple_list_total = self.search_param_builder(question, id, index_name)  # ('text', 21.672752, 222)
             tuple_list_total = self.query_sentences(question, id, index_name)
             for tuple_list in tuple_list_total:
                 self.pq.put((tuple_list[1] * -1 * weigh, tuple_list[2], tuple_list[0]))  # (score, id, text)
@@ -813,12 +804,12 @@ class Project():
                     total_sen += 1
                     q = question[1: question.find("?") + 1]
                     # print(q + "\n")
-                    
-                    if( q != " "):
+
+                    if (q != " "):
                         articlesId = self.query_articles(q)
 
                         in_top10 = False
-                        for i,doc in enumerate(articlesId):
+                        for i, doc in enumerate(articlesId):
                             if int(article) == doc and in_top10 == False:
                                 if i == 0:
                                     num_top1 += 1
@@ -826,8 +817,6 @@ class Project():
                                 else:
                                     num_top10 += 1
                                     in_top10 = True
-                                    
-                                
 
         data.close()
 
@@ -844,11 +833,11 @@ class Project():
         num_top10 = 0
         num_correct = 0
 
-        with open(os.path.join(os.getcwd(),"..", "QA_test\QA Data.txt"), 'r',
+        with open(os.path.join(os.getcwd(), "..", "QA_test\QA Data.txt"), 'r',
                   encoding='utf-8') as data, open("Missed_questions.txt", 'w', encoding='utf-8') as missed:
 
-#        with open(os.path.join(os.getcwd(), "QA_test\QA Data.txt"), 'r',
-#                  encoding='utf-8') as data, open("Missed_questions.txt", 'w', encoding='utf-8') as missed:
+            #        with open(os.path.join(os.getcwd(), "QA_test\QA Data.txt"), 'r',
+            #                  encoding='utf-8') as data, open("Missed_questions.txt", 'w', encoding='utf-8') as missed:
             lines = data.readlines()
             for line in lines:
                 article = line[line.find("[") + 1: line.find(",")]
@@ -859,7 +848,7 @@ class Project():
                 for question in questions:
                     total_sen += 1
                     q = question[1: question.find("?") + 1]
-                    #print(q + "\n")
+                    # print(q + "\n")
                     answer = question[question.find("?") + 5: question.find("')")]
                     # answer = question[question.find(",") + 2: question.find("')")]
                     cleaned_answer = answer.strip("'\"")
@@ -876,9 +865,9 @@ class Project():
                                 if (i == 0):
                                     num_correct += 1
                                     correct = True
-#                                    print(result[2])
-#                                    print(cleaned_answer)
-#                                    print('\n')
+                                    #                                    print(result[2])
+                                    #                                    print(cleaned_answer)
+                                    #                                    print('\n')
                                     break
                                 else:
                                     num_top10 += 1
@@ -886,8 +875,8 @@ class Project():
                         if correct == False:
                             missed.write(article + "\t" + q + "\t" + cleaned_answer + "\t" + top_ans + "\n")
                             print(q)
-#                            print(top_ans)
-#                            print('\n')
+                        #                            print(top_ans)
+                        #                            print('\n')
                         if total_sen % 10 == 0:
                             print("current accuracy: %f" % (num_correct / total_sen))
 
@@ -898,7 +887,7 @@ class Project():
         print("num correct: " + str(num_correct))
         print("accuracy: %f" % (num_correct / total_sen))
 
-#%%
+    # %%
     # Build the query, query_POS,query_lemma and wordnet, only need to run it once
     def query_builder(self, sentence):
         self.query = ""
@@ -931,47 +920,47 @@ class Project():
                 synset = []
 
             for syn in synset:
-#                syn_name = syn.name().split('.')[0]
-#                if syn_name != word.text and self.synonyms.find(syn_name) == -1:
-#                    self.synonyms += syn_name + " "
+                #                syn_name = syn.name().split('.')[0]
+                #                if syn_name != word.text and self.synonyms.find(syn_name) == -1:
+                #                    self.synonyms += syn_name + " "
                 for l in syn.lemmas():
-                        if l.name() not in self.synonyms:
-                            self.synonyms += l.name() + " "
-                    # Extract hypernymns
+                    if l.name() not in self.synonyms:
+                        self.synonyms += l.name() + " "
+                # Extract hypernymns
                 hyper = syn.hypernyms()
                 for h in hyper:
-#                    h_name = h.name().split('.')[0]
-#                    self.hypernyms += h_name + " "
+                    #                    h_name = h.name().split('.')[0]
+                    #                    self.hypernyms += h_name + " "
                     for l in h.lemmas():
-                            if l.name() not in self.hypernyms:
-                                self.hypernyms += l.name() + " "
+                        if l.name() not in self.hypernyms:
+                            self.hypernyms += l.name() + " "
                 hypo = syn.hyponyms()
                 for h in hypo:
-#                    h_name = h.name().split('.')[0]
-#                    self.hyponyms += h_name + " "
+                    #                    h_name = h.name().split('.')[0]
+                    #                    self.hyponyms += h_name + " "
                     for l in h.lemmas():
-                            if l.name() not in self.hyponyms:
-                                self.hyponyms += l.name() + " "
+                        if l.name() not in self.hyponyms:
+                            self.hyponyms += l.name() + " "
                 holo = syn.part_holonyms()
                 for h in holo:
-#                    h_name = h.name().split('.')[0]
-#                    self.holonyms += h_name + " "
+                    #                    h_name = h.name().split('.')[0]
+                    #                    self.holonyms += h_name + " "
                     for l in h.lemmas():
-                            if l.name() not in self.holonyms:
-                                self.holonyms += l.name() + " "
+                        if l.name() not in self.holonyms:
+                            self.holonyms += l.name() + " "
                 mero = syn.part_meronyms()
                 for m in mero:
-#                    m_name = m.name().split('.')[0]
-#                    self.meronyms += m_name + " "
+                    #                    m_name = m.name().split('.')[0]
+                    #                    self.meronyms += m_name + " "
                     for l in m.lemmas():
-                            if l.name() not in self.meronyms:
-                                self.meronyms += l.name() + " "
+                        if l.name() not in self.meronyms:
+                            self.meronyms += l.name() + " "
 
         for ent in sentence.ents:
             # named entity format is like this: entity_type
             self.query_ne += ent.text + "_" + ent.type + " "
 
-#%%
+    # %%
     # Run query_builder before running this one, it builds proper search_param for the elasticsearch, need to run multiple times for different article_id
     # Output: Returns top 10 results in list.  (score after weigh, articles id, sentence)
     def search_param_builder(self, question, articlesId, index_name):
@@ -986,7 +975,7 @@ class Project():
                     },
                     "should": [
                         {"match": {
-                            "text": self.query + self.synonyms + self.hypernyms 
+                            "text": self.query + self.synonyms + self.hypernyms
                         }
                         },
                         {
@@ -1055,51 +1044,55 @@ class Project():
         # print([( hit['_source']['article_id'], hit['_score']) for hit in
         # res['hits']['hits']])
         return result
-#%%
+
+    # %%
 
     def task3_xlsx(self, example_file_path):
         data = pd.read_excel(example_file_path)
         print(data)
-        with open('../QA_test/sample_output.csv','w',newline='') as csvfile:
-            spamwriter = csv.writer(csvfile, delimiter=',',quotechar=" ",quoting=csv.QUOTE_MINIMAL)
+        with open('../QA_test/sample_output.csv', 'w', newline='') as csvfile:
+            spamwriter = csv.writer(csvfile, delimiter=',', quotechar=" ", quoting=csv.QUOTE_MINIMAL)
             for index, row in data.iterrows():
-                #print("progress",index+1)
+                # print("progress",index+1)
                 question = row['question']
-                #print("query articles")
-                top10_id = self.query_articles(question) #(article id, score)
-                #print(top10_id)
-                #print("query sentences")
-                result = self.search_sentences(question,top10_id,"sentences",10)  #(score, article_id, answer_sentence) in list
+                # print("query articles")
+                top10_id = self.query_articles(question)  # (article id, score)
+                # print(top10_id)
+                # print("query sentences")
+                result = self.search_sentences(question, top10_id, "sentences",
+                                               10)  # (score, article_id, answer_sentence) in list
                 article_id = result[0][1]
                 answer_sentence = result[0][2]
-                #print(article_id)
-                #print(answer_sentence)
-                #print("writing")
+                # print(article_id)
+                # print(answer_sentence)
+                # print("writing")
                 spamwriter.writerow([question, article_id, answer_sentence])
-
 
     def task3_txt(self, example_file_path):
 
-        with open('../QA_test/sample_output.txt','w',newline='', encoding='utf-8') as csvfile, open(example_file_path,'r',newline='', encoding='utf-8') as articles:
-            spamwriter = csv.writer(csvfile, delimiter=',',quotechar=' ', quoting=csv.QUOTE_MINIMAL)
+        with open('../QA_test/sample_output.txt', 'w', newline='', encoding='utf-8') as csvfile, open(example_file_path,
+                                                                                                      'r', newline='',
+                                                                                                      encoding='utf-8') as articles:
+            spamwriter = csv.writer(csvfile, delimiter=',', quotechar=' ', quoting=csv.QUOTE_MINIMAL)
             article = articles.readlines()
+            print(article)
             for lines in article:
-                line = lines.split('(',1)[1]
-                questions = line.split(', (')
-                for q in questions:
-                    question = q[1:q.find('?')+1]
+                line = lines.strip()
+                if line:
+                    question = line[:line.find('?') + 1]
                     print(question)
-                    top10_id = self.query_articles(question) #(article id, score)
-                    #print(top10_id)
-                    result = self.search_sentences(question,top10_id,"sentences",10)  #(score, article_id, answer_sentence) in list
+                    top10_id = self.query_articles(question)  # (article id, score)
+                    # print(top10_id)
+                    result = self.search_sentences(question, top10_id, "sentences",
+                                                   10)  # (score, article_id, answer_sentence) in list
                     article_id = result[0][1]
                     answer_sentence = result[0][2]
                     spamwriter.writerow([question, article_id, answer_sentence])
 
-#%%
+    # %%
     def task1(self, file_path):
         print("starting Task 1")
-        with open(file_path,'r', encoding='utf-8') as lines:
+        with open(file_path, 'r', encoding='utf-8') as lines:
             sentences = []
             tokens = []
             lemmas = []
@@ -1110,10 +1103,10 @@ class Project():
             meronyms = []
             holonyms = []
             synonyms = []
-            
+
             for line in lines:
                 doc = self.nlp(line)
-                for sentence in doc.sentences:   
+                for sentence in doc.sentences:
                     sentences.append(sentence.text)
                     dep_sen = []
                     synonym_sen = ""
@@ -1121,15 +1114,16 @@ class Project():
                     hyponym_sen = ""
                     meronym_sen = ""
                     holonym_sen = ""
-                    
-                    for word in sentence.words:                        
+
+                    for word in sentence.words:
                         # Dependency Parsing
                         if word.head > 0:
                             head = sentence.words[word.head - 1].text
                         else:
                             head = "root"
-                        dep_sen.append('id:' + str(word.id) + '\tword:' +  word.text + '\thead id:'+ str(word.head) + '\thead:' + head + '\tdeprel:' + word.deprel + '\n')
-                        
+                        dep_sen.append('id:' + str(word.id) + '\tword:' + word.text + '\thead id:' + str(
+                            word.head) + '\thead:' + head + '\tdeprel:' + word.deprel + '\n')
+
                         # Use WordNet to extract the hypernyms, hyponyms, meronyms, and holonyms
                         if word.upos == "NOUN":
                             synset = wordnet.synsets(word.text, pos=wordnet.NOUN)
@@ -1141,31 +1135,28 @@ class Project():
                             synset = wordnet.synsets(word.text, pos=wordnet.ADV)
                         else:
                             synset = []
-                            
-                        if(len(synset) > 0):  
+
+                        if (len(synset) > 0):
                             synonym_sen += word.text + ": " + self.extract_synonyms(synset) + "|"
-                            
-                            
+
                         for syn in synset:
-                            if(len(synset) > 0):
-                                #extract hypernyms
-                                if(len(syn.hypernyms()) > 0):
+                            if (len(synset) > 0):
+                                # extract hypernyms
+                                if (len(syn.hypernyms()) > 0):
                                     hypernym_sen += word.text + ": " + self.extract_hypernyms(synset) + "|"
-                                
-                                #extract hyponyms
-                                if(len(syn.hyponyms()) > 0):
+
+                                # extract hyponyms
+                                if (len(syn.hyponyms()) > 0):
                                     hypernym_sen += word.text + ": " + self.extract_hyponyms(synset) + "|"
-                                
-                                #extract holonyms
-                                if(len(syn.part_holonyms()) > 0):
+
+                                # extract holonyms
+                                if (len(syn.part_holonyms()) > 0):
                                     holonym_sen += word.text + ": " + self.extract_holonyms(synset) + "|"
-                                   
-                                #extract meronyms
-                                if(len(syn.part_meronyms()) > 0):
+
+                                # extract meronyms
+                                if (len(syn.part_meronyms()) > 0):
                                     meronym_sen += word.text + ": " + self.extract_meronyms(synset) + "|"
-                                                        
-                                
-                                
+
                     tokens.append(self.extract_tokens(sentence))
                     pos.append(self.extract_pos(sentence))
                     lemmas.append(self.extract_lemmas(sentence, True))
@@ -1175,9 +1166,8 @@ class Project():
                     meronyms.append(meronym_sen)
                     holonyms.append(holonym_sen)
                     synonyms.append(synonym_sen)
-                        
-                        
-        #Write the extracted features to a text file called Task1_Output.txt
+
+        # Write the extracted features to a text file called Task1_Output.txt
         with open("Task1_Output.txt", 'w', encoding='utf-8') as output:
             for i, sen in enumerate(sentences):
                 output.write("Sentence " + str(i) + ": " + sen + "\n")
