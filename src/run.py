@@ -42,7 +42,7 @@ question = "Who came after Reza Shah renounced the throne?"
 
 #example_file_path_txt = "../QA_test/questions.txt"
 example_file_path_txt= "../QA_test/test.txt"
-project.task3_txt(example_file_path_txt)
+project.task3_txt_bar_quotechar(example_file_path_txt)
 
 #%%
 # article accuracy on QA test set

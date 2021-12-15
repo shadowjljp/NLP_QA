@@ -101,7 +101,7 @@ class Project():
                 # article.close()
 
     # %%
-    def index_sentences_elasticsearch(self, index_name):            
+    def index_sentences_elasticsearch(self, index_name):
         path = os.path.join(os.getcwd(), '..', 'articles')
         for article in os.listdir(path):
             # avoid .ds_store hidden file
@@ -136,8 +136,7 @@ class Project():
                             # lemma format is like this : word_lemma
                             # lemmas.append(word.text + "_" + word.lemma)
                             lemmas.append(word.lemma)
-                            
-                            
+
                             if word.head > 0:
                                 head = sentence.words[word.head - 1].lemma
 
@@ -145,9 +144,8 @@ class Project():
                                 nsubj += word.text + " "
                             if "obj" in word.deprel:
                                 dobj += word.text + " "
-                               
-                                
-                            #dep.append(word.lemma + "_" + head + "_" + word.deprel)
+
+                            # dep.append(word.lemma + "_" + head + "_" + word.deprel)
 
                         for ent in sentence.ents:
                             # named entity format is like this: entity_type
@@ -215,13 +213,13 @@ class Project():
             syn_name = syn.name().split('.')[0]
             if synonyms.find(syn_name) == -1:
                 synonyms += syn_name + " "
-#            for l in syn.lemmas():
-#                if l.name() not in synonyms:
-#                    synonyms += l.name() + " "
-#        if(len(synset) > 0):
-#            for l in synset[0].lemmas():
-#                if l.name() not in synonyms:
-#                        synonyms += l.name().replace("_", " ") + " "
+        #            for l in syn.lemmas():
+        #                if l.name() not in synonyms:
+        #                    synonyms += l.name() + " "
+        #        if(len(synset) > 0):
+        #            for l in synset[0].lemmas():
+        #                if l.name() not in synonyms:
+        #                        synonyms += l.name().replace("_", " ") + " "
         return synonyms
 
     # %% Extract WordNet hypernyms
@@ -245,9 +243,9 @@ class Project():
             for h in hypo:
                 h_name = h.name().split('.')[0]
                 hyponyms += h_name + " "
-#                for l in h.lemmas():
-#                    if l.name() not in hyponyms:
-#                        hyponyms += l.name() + " "
+        #                for l in h.lemmas():
+        #                    if l.name() not in hyponyms:
+        #                        hyponyms += l.name() + " "
         return hyponyms
 
     # %% Extract WordNet holonyms
@@ -258,9 +256,9 @@ class Project():
             for h in holo:
                 h_name = h.name().split('.')[0]
                 holonyms += h_name + " "
-#                for l in h.lemmas():
-#                    if l.name() not in holonyms:
-#                        holonyms += l.name() + " "
+        #                for l in h.lemmas():
+        #                    if l.name() not in holonyms:
+        #                        holonyms += l.name() + " "
 
         return holonyms
 
@@ -272,9 +270,9 @@ class Project():
             for m in mero:
                 m_name = m.name().split('.')[0]
                 meronyms += m_name + " "
-#                for l in m.lemmas():
-#                    if l.name() not in meronyms:
-#                        meronyms += l.name() + " "
+        #                for l in m.lemmas():
+        #                    if l.name() not in meronyms:
+        #                        meronyms += l.name() + " "
         return meronyms
 
     # %% Extract Named entities
@@ -300,7 +298,7 @@ class Project():
             # part of speech tag: format is like this : word_POS
             query_pos += self.extract_pos(sentence)
             # lemma format is like this : word_lemma
-            #query_lemma += self.extract_lemmas(sentence, False)
+            # query_lemma += self.extract_lemmas(sentence, False)
             # named entity format is like this: entity_type
             query_ne += self.extract_ne(sentence)
 
@@ -373,7 +371,7 @@ class Project():
             head = ""
             nsubj = ""
             dobj = ""
-            
+
             for word in sentence.words:
                 if word.upos == "NOUN" or word.upos == "PROPN":
                     synset = wordnet.synsets(word.text, pos=wordnet.NOUN)
@@ -387,14 +385,14 @@ class Project():
                     synset = []
 
                 synonyms += self.extract_synonyms(synset)
-                #hypernyms += self.extract_hypernyms(synset)
-                #hyponyms += self.extract_hyponyms(synset)
-                #holonyms += self.extract_holonyms(synset)
-                #meronyms += self.extract_meronyms(synset)
-                
-                #print(synonyms)
-                
-                #dependency parsing
+                # hypernyms += self.extract_hypernyms(synset)
+                # hyponyms += self.extract_hyponyms(synset)
+                # holonyms += self.extract_holonyms(synset)
+                # meronyms += self.extract_meronyms(synset)
+
+                # print(synonyms)
+
+                # dependency parsing
                 if word.head > 0:
                     head = sentence.words[word.head - 1].text
                 if "nsubj" in word.deprel:
@@ -407,16 +405,16 @@ class Project():
                 "bool": {
                     "must": {"match": {
                         "ne_types": "DATE + CARDINAL + NUMBER"
-                        }
+                    }
                     },
                     "filter": {
                         "term": {"article_id": articlesId},
                     },
                     "should": [
                         {"match": {
-                            "text": query + synonyms 
-                            }
-                        },                        
+                            "text": query + synonyms
+                        }
+                        },
                         {
                             "match": {
                                 "pos": query_pos
@@ -456,15 +454,15 @@ class Project():
                 "bool": {
                     "must": {"match": {
                         "ne_types": "PERSON + ORG"
-                        }
+                    }
                     },
                     "filter": {
                         "term": {"article_id": articlesId},
                     },
-                    "should": [   
+                    "should": [
                         {"match": {
-                            "text": query + synonyms 
-                           }
+                            "text": query + synonyms
+                        }
                         },
                         {
                             "match": {
@@ -508,8 +506,8 @@ class Project():
                     },
                     "should": [
                         {"match": {
-                            "text": query + synonyms 
-                           }
+                            "text": query + synonyms
+                        }
                         },
                         {
                             "match": {
@@ -552,7 +550,6 @@ class Project():
                   res['hits']['hits']]
 
         return result
-
 
     # %%
     # output list (score, id, text) with weigh
@@ -678,7 +675,6 @@ class Project():
         print("num correct: " + str(num_correct))
         print("accuracy: %f" % (num_correct / total_sen))
 
-
     # %%
 
     def task3_xlsx(self, example_file_path):
@@ -744,6 +740,50 @@ class Project():
                     answer_sentence = result[0][2]
                     spamwriter.writerow([question, article_id, answer_sentence])
 
+    def task3_txt_comma_quotechar(self, example_file_path):
+
+        with open('../QA_test/sample_output.csv', 'w', newline='', encoding='utf-8', ) as csvfile, open(
+                example_file_path,
+                'r', newline='',
+                encoding='utf-8') as articles:
+            spamwriter = csv.writer(csvfile, quoting=csv.QUOTE_MINIMAL,delimiter=',')
+            article = articles.readlines()
+            print(article)
+            for lines in article:
+                line = lines.strip()
+                if line:
+                    question = line[:line.find('?') + 1]
+                    print(question)
+                    top10_id = self.query_articles(question)  # (article id, score)
+                    # print(top10_id)
+                    result = self.search_sentences(question, top10_id, "sentences",
+                                                   10)  # (score, article_id, answer_sentence) in list
+                    article_id = result[0][1]
+                    answer_sentence = result[0][2]
+                    spamwriter.writerow([question, article_id, answer_sentence])
+
+    def task3_txt_bar_quotechar(self, example_file_path):
+
+        with open('../QA_test/sample_output.csv', 'w', newline='', encoding='utf-8', ) as csvfile, open(
+                example_file_path,
+                'r', newline='',
+                encoding='utf-8') as articles:
+            spamwriter = csv.writer(csvfile, quoting=csv.QUOTE_MINIMAL,delimiter='|')
+            article = articles.readlines()
+            print(article)
+            for lines in article:
+                line = lines.strip()
+                if line:
+                    question = line[:line.find('?') + 1]
+                    print(question)
+                    top10_id = self.query_articles(question)  # (article id, score)
+                    # print(top10_id)
+                    result = self.search_sentences(question, top10_id, "sentences",
+                                                   10)  # (score, article_id, answer_sentence) in list
+                    article_id = result[0][1]
+                    answer_sentence = result[0][2]
+                    spamwriter.writerow([question, article_id, answer_sentence])
+
     # %%
     def task1(self, file_path):
         print("starting Task 1")
@@ -771,8 +811,8 @@ class Project():
                     meronym_sen = ""
                     holonym_sen = ""
                     ne_sen = []
-                    
-                    for word in sentence.words:                        
+
+                    for word in sentence.words:
                         # Dependency Parsing
                         if word.head > 0:
                             head = sentence.words[word.head - 1].text
@@ -814,11 +854,10 @@ class Project():
                                 if (len(syn.part_meronyms()) > 0):
                                     meronym_sen += word.text + ": " + self.extract_meronyms(synset) + "|"
 
-                                                        
                     for ent in sentence.ents:
-                        #named entity format is like this: entity_type
-                        ne_sen.append(ent.text + "_" + ent.type)            
-                                
+                        # named entity format is like this: entity_type
+                        ne_sen.append(ent.text + "_" + ent.type)
+
                     tokens.append(self.extract_tokens(sentence))
                     pos.append(self.extract_pos(sentence))
                     lemmas.append(self.extract_lemmas(sentence, True))
@@ -847,11 +886,10 @@ class Project():
                 output.write("\n")
         print("Task 1 finished")
 
-        
-#%%
-#extract the article id, question, and answer from QA Data
+    # %%
+    # extract the article id, question, and answer from QA Data
     def extract_QA(self):
-        with open(os.path.join(os.getcwd(),"..", "QA_test\QA Data.txt"), 'r',
+        with open(os.path.join(os.getcwd(), "..", "QA_test\QA Data.txt"), 'r',
                   encoding='utf-8') as data, open("Questions_answers.txt", 'w', encoding='utf-8') as qa:
 
             lines = data.readlines()
@@ -863,14 +901,12 @@ class Project():
                 questions = new_line.split(", (")
                 for question in questions:
                     q = question[1: question.find("?") + 1]
-                    #print(q + "\n")
+                    # print(q + "\n")
                     answer = question[question.find("?") + 5: question.find("')")]
                     # answer = question[question.find(",") + 2: question.find("')")]
                     cleaned_answer = answer.strip("'\"")
-                    
-                    #qa.write(article + "\t" + q + "\t" + cleaned_answer + "\n")
+
+                    # qa.write(article + "\t" + q + "\t" + cleaned_answer + "\n")
                     qa.write(q + "\n")
 
         data.close()
-
-
