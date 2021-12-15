@@ -13,8 +13,8 @@ project = Project()
 #%%
 # for Task 1 demo
 
-project.task1("../articles/58.txt")
-project.task1("../QA_test/questions.txt")
+# project.task1("../articles/58.txt")
+# project.task1("../QA_test/questions.txt")
 
 #%%
 # sample query for Task 2 demo
@@ -23,10 +23,10 @@ question = "Who came after Reza Shah renounced the throne?"
 #question = "When was the Gadsden Purchase?"
 #question = "Who is the Supreme Leader?"
 
-articlesId = project.query_articles(question)
-results = project.search_sentences(question, articlesId, 'sentences', 10)
-answer = results[0][2]
-print(answer)
+# articlesId = project.query_articles(question)
+# results = project.search_sentences(question, articlesId, 'sentences', 10)
+# answer = results[0][2]
+# print(answer)
 
 
 #%%
