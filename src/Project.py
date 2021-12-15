@@ -740,49 +740,7 @@ class Project():
                     answer_sentence = result[0][2]
                     spamwriter.writerow([question, article_id, answer_sentence])
 
-    def task3_txt_comma_quotechar(self, example_file_path):
 
-        with open('../QA_test/sample_output.csv', 'w', newline='', encoding='utf-8', ) as csvfile, open(
-                example_file_path,
-                'r', newline='',
-                encoding='utf-8') as articles:
-            spamwriter = csv.writer(csvfile, quoting=csv.QUOTE_MINIMAL,delimiter=',')
-            article = articles.readlines()
-            print(article)
-            for lines in article:
-                line = lines.strip()
-                if line:
-                    question = line[:line.find('?') + 1]
-                    print(question)
-                    top10_id = self.query_articles(question)  # (article id, score)
-                    # print(top10_id)
-                    result = self.search_sentences(question, top10_id, "sentences",
-                                                   10)  # (score, article_id, answer_sentence) in list
-                    article_id = result[0][1]
-                    answer_sentence = result[0][2]
-                    spamwriter.writerow([question, article_id, answer_sentence])
-
-    def task3_txt_bar_quotechar(self, example_file_path):
-
-        with open('../QA_test/sample_output.csv', 'w', newline='', encoding='utf-8', ) as csvfile, open(
-                example_file_path,
-                'r', newline='',
-                encoding='utf-8') as articles:
-            spamwriter = csv.writer(csvfile, quoting=csv.QUOTE_MINIMAL,delimiter='|')
-            article = articles.readlines()
-            print(article)
-            for lines in article:
-                line = lines.strip()
-                if line:
-                    question = line[:line.find('?') + 1]
-                    print(question)
-                    top10_id = self.query_articles(question)  # (article id, score)
-                    # print(top10_id)
-                    result = self.search_sentences(question, top10_id, "sentences",
-                                                   10)  # (score, article_id, answer_sentence) in list
-                    article_id = result[0][1]
-                    answer_sentence = result[0][2]
-                    spamwriter.writerow([question, article_id, answer_sentence])
 
     # %%
     def task1(self, file_path):
