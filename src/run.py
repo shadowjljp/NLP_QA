@@ -39,9 +39,9 @@ print(answer)
 #for task3 taking input file :txt
 # output CSV
 #example_file_path_txt = "../QA_test/short_test.txt"
-#example_file_path_txt= "../QA_test/test.txt"
+example_file_path_txt= "../QA_test/test.txt"
 #example_file_path_txt = "../QA_test/questions.txt"
-#project.task3_txt(example_file_path_txt)
+project.task3_txt(example_file_path_txt)
 
 #%%
 # article accuracy on QA test set
