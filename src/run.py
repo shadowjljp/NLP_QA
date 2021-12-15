@@ -14,13 +14,13 @@ project = Project()
 #%%
 # query
 
-question = "When did the Internet arrive in Iran?"
-
-
-articlesId = project.query_articles(question)
-results = project.search_sentences(question, articlesId, 'sentences', 10)
-results1 = project.query_sentences_no_article(question, 'sentences')
-print(results[0][2])
+# question = "When did the Internet arrive in Iran?"
+#
+#
+# articlesId = project.query_articles(question)
+# results = project.search_sentences(question, articlesId, 'sentences', 10)
+# results1 = project.query_sentences_no_article(question, 'sentences')
+# print(results[0][2])
 
 # %%
 # accuracy

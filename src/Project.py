@@ -852,7 +852,7 @@ class Project():
 
     def task3_txt(self, example_file_path):
 
-        with open('../QA_test/sample_output.txt', 'w', newline='', encoding='utf-8') as csvfile, open(example_file_path,
+        with open('../QA_test/sample_output.csv', 'w', newline='', encoding='utf-8') as csvfile, open(example_file_path,
                                                                                                       'r', newline='',
                                                                                                       encoding='utf-8') as articles:
             spamwriter = csv.writer(csvfile, delimiter=',', quotechar=' ', quoting=csv.QUOTE_MINIMAL)
