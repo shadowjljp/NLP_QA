@@ -719,6 +719,7 @@ class Project():
                     answer_sentence = result[0][2]
                     spamwriter.writerow([question, article_id, answer_sentence])
 
+    #output csv with delimiter |
     def task3_txt(self, example_file_path):
 
         with open('../QA_test/sample_output.csv', 'w', newline='', encoding='utf-8') as csvfile, open(example_file_path,
