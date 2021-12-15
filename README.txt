@@ -25,4 +25,4 @@ Ex: file_path = "../articles/58.txt"
 Demo Task 3 
 -Run project.task3_txt(file_path) where file_path is the filepath of the input file containing the questions. The output will be generated in the QA_test folder called sample_output.csv.
 
-Ex: file_path = ""../QA_test/questions.txt"
+Ex: file_path = "../QA_test/questions.txt"
